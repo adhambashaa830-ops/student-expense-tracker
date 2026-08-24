@@ -187,6 +187,104 @@
                 <!-- Expenses will appear here automatically via JavaScript -->
             </ul>
         </div>
-    </div>
+    </div> 
+    <script>
+        // App State Data
+        let totalBudget = 500.00; // Default budget for a student
+        let expenses = [];
+
+        // DOM Elements
+        const budgetAmountEl = document.getElementById('budget-amount');
+        const expenseAmountEl = document.getElementById('expense-amount');
+        const balanceAmountEl = document.getElementById('balance-amount');
+        const expenseForm = document.getElementById('expense-form');
+        const expenseNameInput = document.getElementById('expense-name');
+        const expenseCostInput = document.getElementById('expense-cost');
+        const expenseCategoryInput = document.getElementById('expense-category');
+        const expenseListEl = document.getElementById('expense-list');
+
+        // Initialize App Values
+        function updateDashboardValues() {
+            // Calculate total spent
+            const totalSpent = expenses.reduce((sum, item) => sum + item.cost, 0);
+            const remainingBalance = totalBudget - totalSpent;
+
+            // Render numbers onto screen text fields
+            budgetAmountEl.innerText = $${totalBudget.toFixed(2)};
+            expenseAmountEl.innerText = $${totalSpent.toFixed(2)};
+            balanceAmountEl.innerText = $${remainingBalance.toFixed(2)};
+
+            // Change colors dynamically based on budget status
+            if (remainingBalance < 0) {
+                balanceAmountEl.style.color = 'var(--danger)';
+            } else {
+                balanceAmountEl.style.color = 'var(--success)';
+            }
+        }
+
+        // Render logs list onto UI
+        function renderExpenseList() {
+            expenseListEl.innerHTML = ''; // Clear prior elements
+
+            if (expenses.length === 0) {
+                expenseListEl.innerHTML = '<li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>';
+                return;
+            }
+
+            expenses.forEach((item, index) => {
+                const li = document.createElement('li');
+                
+                // Add color bars based on categories
+                if (item.category === 'Food') li.style.borderRightColor = '#f59e0b';
+                if (item.category === 'Education') li.style.borderRightColor = '#3b82f6';
+                if (item.category === 'Transport') li.style.borderRightColor = '#10b981';
+                if (item.category === 'Entertainment') li.style.borderRightColor = '#ec4899';
+
+                li.innerHTML = 
+                    <div>
+                        <strong>${item.name}</strong> 
+                        <span style="font-size: 11px; padding: 2px 6px; margin-left: 5px; border-radius: 12px; background: #e2e8f0;">${item.category}</span>
+                    </div>
+                    <div>
+                        <span style="font-weight: 600; margin-right: 15px;">-$${item.cost.toFixed(2)}</span>
+                        <button class="delete-btn" onclick="deleteExpense(${index})">×</button>
+                    </div>
+                ;
+                expenseListEl.appendChild(li);
+            });
+        }
+
+        // Add a new expense event tracker
+        expenseForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop page refresh
+
+            const name = expenseNameInput.value.trim();
+            const cost = parseFloat(expenseCostInput.value);
+            const category = expenseCategoryInput.value;
+
+            if (name === ''  isNaN(cost)  cost <= 0) return;
+
+            // Push item object into memory array
+            expenses.push({ name, cost, category });
+
+            // Clear inputs
+            expenseNameInput.value = '';
+            expenseCostInput.value = '';
+
+            // Refresh UI components
+            updateDashboardValues();
+            renderExpenseList();
+        });
+
+        // Delete recorded item from index position
+        window.deleteExpense = function(index) {
+            expenses.splice(index, 1);
+            updateDashboardValues();
+            renderExpenseList();
+        } 
+            // Run dashboard configuration calculations at load time
+        updateDashboardValues();
+        renderExpenseList();
+    </script>
 </body>
 </html>
