@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Expense Tracker</title> 
+    <title>Student Expense Tracker</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -30,7 +30,7 @@
             background: var(--card-bg);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
@@ -97,7 +97,6 @@
 
         input:focus, select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         button {
@@ -106,11 +105,6 @@
             font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: #4338ca;
         }
 
         ul {
@@ -134,13 +128,8 @@
             background: none;
             color: var(--danger);
             border: none;
-            padding: 0 5px;
             font-size: 18px;
             cursor: pointer;
-        }
-        
-        .delete-btn:hover {
-            color: #b91c1c;
         }
     </style>
 </head>
@@ -148,11 +137,10 @@
     <div class="container">
         <h2>🎒 Student Expense Tracker</h2>
         
-        <!-- Budget Display Boxes -->
         <div class="budget-display">
             <div>
                 <h4>Total Monthly Budget</h4>
-                <h1 id="budget-amount">$0.00</h1>
+                <h1 id="budget-amount">$500.00</h1>
             </div>
             <div>
                 <h4>Total Expenses</h4>
@@ -160,14 +148,12 @@
             </div>
             <div>
                 <h4>Remaining Balance</h4>
-                <h1 id="balance-amount" style="color: green;">$0.00</h1>
+                <h1 id="balance-amount" style="color: green;">$500.00</h1>
             </div>
-        </div>
-
-        <!-- Input Form -->
+        </div> 
         <div class="form-container">
             <h3>Add New Expense</h3>
-            <form id="expense-form">
+            <form id="expense-form" onsubmit="addNewExpense(event)">
                 <input type="text" id="expense-name" placeholder="e.g., Books, Lunch, Rent" required>
                 <input type="number" id="expense-cost" placeholder="Amount ($)" required min="0.01" step="0.01">
                 <select id="expense-category">
@@ -180,20 +166,18 @@
             </form>
         </div>
 
-        <!-- History List -->
         <div class="history-container">
             <h3>Expense Log History</h3>
             <ul id="expense-list">
-                <!-- Expenses will appear here automatically via JavaScript -->
+                <li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>
             </ul>
         </div>
-    </div> 
+    </div>
+
     <script>
-        // App State Data
-        let totalBudget = 500.00; // Default budget for a student
+        let totalBudget = 500.00;
         let expenses = [];
 
-        // DOM Elements
         const budgetAmountEl = document.getElementById('budget-amount');
         const expenseAmountEl = document.getElementById('expense-amount');
         const balanceAmountEl = document.getElementById('balance-amount');
@@ -203,18 +187,14 @@
         const expenseCategoryInput = document.getElementById('expense-category');
         const expenseListEl = document.getElementById('expense-list');
 
-        // Initialize App Values
         function updateDashboardValues() {
-            // Calculate total spent
             const totalSpent = expenses.reduce((sum, item) => sum + item.cost, 0);
             const remainingBalance = totalBudget - totalSpent;
 
-            // Render numbers onto screen text fields
             budgetAmountEl.innerText = $${totalBudget.toFixed(2)};
             expenseAmountEl.innerText = $${totalSpent.toFixed(2)};
             balanceAmountEl.innerText = $${remainingBalance.toFixed(2)};
 
-            // Change colors dynamically based on budget status
             if (remainingBalance < 0) {
                 balanceAmountEl.style.color = 'var(--danger)';
             } else {
@@ -222,9 +202,8 @@
             }
         }
 
-        // Render logs list onto UI
         function renderExpenseList() {
-            expenseListEl.innerHTML = ''; // Clear prior elements
+            expenseListEl.innerHTML = '';
 
             if (expenses.length === 0) {
                 expenseListEl.innerHTML = '<li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>';
@@ -234,7 +213,6 @@
             expenses.forEach((item, index) => {
                 const li = document.createElement('li');
                 
-                // Add color bars based on categories
                 if (item.category === 'Food') li.style.borderRightColor = '#f59e0b';
                 if (item.category === 'Education') li.style.borderRightColor = '#3b82f6';
                 if (item.category === 'Transport') li.style.borderRightColor = '#10b981';
@@ -247,44 +225,35 @@
                     </div>
                     <div>
                         <span style="font-weight: 600; margin-right: 15px;">-$${item.cost.toFixed(2)}</span>
-                        <button class="delete-btn" onclick="deleteExpense(${index})">×</button>
+                        <button type="button" class="delete-btn" onclick="deleteExpense(${index})">×</button>
                     </div>
                 ;
                 expenseListEl.appendChild(li);
             });
         }
 
-        // Add a new expense event tracker
-        expenseForm.addEventListener('submit', function(e) {
-            e.preventDefault(); // Stop page refresh
+        window.addNewExpense = function(e) {
+            e.preventDefault();
 
             const name = expenseNameInput.value.trim();
             const cost = parseFloat(expenseCostInput.value);
-            const category = expenseCategoryInput.value;
-
+            const category = expenseCategoryInput.value; 
             if (name === ''  isNaN(cost)  cost <= 0) return;
 
-            // Push item object into memory array
             expenses.push({ name, cost, category });
 
-            // Clear inputs
             expenseNameInput.value = '';
             expenseCostInput.value = '';
 
-            // Refresh UI components
             updateDashboardValues();
             renderExpenseList();
-        });
+        };
 
-        // Delete recorded item from index position
         window.deleteExpense = function(index) {
             expenses.splice(index, 1);
             updateDashboardValues();
             renderExpenseList();
-        } 
-            // Run dashboard configuration calculations at load time
-        updateDashboardValues();
-        renderExpenseList();
+        };
     </script>
 </body>
 </html>
