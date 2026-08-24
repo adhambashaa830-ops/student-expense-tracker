@@ -139,121 +139,99 @@
         
         <div class="budget-display">
             <div>
-                <h4>Total Monthly Budget</h4>
-                <h1 id="budget-amount">$500.00</h1>
-            </div>
-            <div>
-                <h4>Total Expenses</h4>
-                <h1 id="expense-amount" style="color: red;">$0.00</h1>
-            </div>
-            <div>
-                <h4>Remaining Balance</h4>
-                <h1 id="balance-amount" style="color: green;">$500.00</h1>
-            </div>
-        </div> 
-        <div class="form-container">
-            <h3>Add New Expense</h3>
-            <form id="expense-form" onsubmit="addNewExpense(event)">
-                <input type="text" id="expense-name" placeholder="e.g., Books, Lunch, Rent" required>
-                <input type="number" id="expense-cost" placeholder="Amount ($)" required min="0.01" step="0.01">
-                <select id="expense-category">
-                    <option value="Food">Food & Drinks</option>
-                    <option value="Education">Books & College Supplies</option>
-                    <option value="Transport">Bus/Train/Fuel</option>
-                    <option value="Entertainment">Fun & Outings</option>
-                </select>
-                <button type="submit">Add Expense</button>
-            </form>
-        </div>
+              <script>
+        // Set app state variables
+        let budgetTotal = 500.00;
+        let itemLogs = [];
 
-        <div class="history-container">
-            <h3>Expense Log History</h3>
-            <ul id="expense-list">
-                <li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>
-            </ul>
-        </div>
-    </div>
+        // Catch DOM display elements
+        const budgetDisplayField = document.getElementById('budget-amount');
+        const expenseDisplayField = document.getElementById('expense-amount');
+        const balanceDisplayField = document.getElementById('balance-amount');
+        const trackingForm = document.getElementById('expense-form');
+        const inputNameField = document.getElementById('expense-name');
+        const inputCostField = document.getElementById('expense-cost');
+        const inputCategoryField = document.getElementById('expense-category');
+        const historyLogList = document.getElementById('expense-list');
 
-    <script>
-        let totalBudget = 500.00;
-        let expenses = [];
+        // Math compilation function
+        function recalculateDashboard() {
+            let spentSum = 0;
+            for (let i = 0; i < itemLogs.length; i++) {
+                spentSum += itemLogs[i].cost;
+            }
+            const leftover = budgetTotal - spentSum;
 
-        const budgetAmountEl = document.getElementById('budget-amount');
-        const expenseAmountEl = document.getElementById('expense-amount');
-        const balanceAmountEl = document.getElementById('balance-amount');
-        const expenseForm = document.getElementById('expense-form');
-        const expenseNameInput = document.getElementById('expense-name');
-        const expenseCostInput = document.getElementById('expense-cost');
-        const expenseCategoryInput = document.getElementById('expense-category');
-        const expenseListEl = document.getElementById('expense-list');
+            budgetDisplayField.innerText = `$${budgetTotal.toFixed(2)}`;
+            expenseDisplayField.innerText = `$${spentSum.toFixed(2)}`;
+            balanceDisplayField.innerText = `$${leftover.toFixed(2)}`;
 
-        function updateDashboardValues() {
-            const totalSpent = expenses.reduce((sum, item) => sum + item.cost, 0);
-            const remainingBalance = totalBudget - totalSpent;
-
-            budgetAmountEl.innerText = $${totalBudget.toFixed(2)};
-            expenseAmountEl.innerText = $${totalSpent.toFixed(2)};
-            balanceAmountEl.innerText = $${remainingBalance.toFixed(2)};
-
-            if (remainingBalance < 0) {
-                balanceAmountEl.style.color = 'var(--danger)';
+            if (leftover < 0) {
+                balanceDisplayField.style.color = 'var(--danger)';
             } else {
-                balanceAmountEl.style.color = 'var(--success)';
+                balanceDisplayField.style.color = 'var(--success)';
             }
         }
 
-        function renderExpenseList() {
-            expenseListEl.innerHTML = '';
+        // List rendering function
+        function drawUIList() {
+            historyLogList.innerHTML = '';
 
-            if (expenses.length === 0) {
-                expenseListEl.innerHTML = '<li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>';
+            if (itemLogs.length === 0) {
+                historyLogList.innerHTML = '<li style="color: #64748b; justify-content: center;">No expenses recorded yet.</li>';
                 return;
             }
 
-            expenses.forEach((item, index) => {
-                const li = document.createElement('li');
+            itemLogs.forEach((element, pos) => {
+                const row = document.createElement('li');
                 
-                if (item.category === 'Food') li.style.borderRightColor = '#f59e0b';
-                if (item.category === 'Education') li.style.borderRightColor = '#3b82f6';
-                if (item.category === 'Transport') li.style.borderRightColor = '#10b981';
-                if (item.category === 'Entertainment') li.style.borderRightColor = '#ec4899';
+                if (element.category === 'Food') row.style.borderRightColor = '#f59e0b';
+                if (element.category === 'Education') row.style.borderRightColor = '#3b82f6';
+                if (element.category === 'Transport') row.style.borderRightColor = '#10b981';
+                if (element.category === 'Entertainment') row.style.borderRightColor = '#ec4899';
 
-                li.innerHTML = 
+                row.innerHTML = `
                     <div>
-                        <strong>${item.name}</strong> 
-                        <span style="font-size: 11px; padding: 2px 6px; margin-left: 5px; border-radius: 12px; background: #e2e8f0;">${item.category}</span>
+                        <strong>${element.name}</strong> 
+                        <span style="font-size: 11px; padding: 2px 6px; margin-left: 5px; border-radius: 12px; background: #e2e8f0;">${element.category}</span>
                     </div>
                     <div>
-                        <span style="font-weight: 600; margin-right: 15px;">-$${item.cost.toFixed(2)}</span>
-                        <button type="button" class="delete-btn" onclick="deleteExpense(${index})">×</button>
+                        <span style="font-weight: 600; margin-right: 15px;">-$${element.cost.toFixed(2)}</span>
+                        <button type="button" class="delete-btn" onclick="removeLoggedItem(${pos})">×</button>
                     </div>
-                ;
-                expenseListEl.appendChild(li);
+                `;
+                historyLogList.appendChild(row);
             });
         }
 
-        window.addNewExpense = function(e) {
-            e.preventDefault();
+        // Form submission capture
+        trackingForm.onsubmit = function(event) {
+            event.preventDefault();
 
-            const name = expenseNameInput.value.trim();
-            const cost = parseFloat(expenseCostInput.value);
-            const category = expenseCategoryInput.value; 
-            if (name === ''  isNaN(cost)  cost <= 0) return;
+            const taskTitle = inputNameField.value.trim();
+            const numericCost = parseFloat(inputCostField.value);
+            const tagValue = inputCategoryField.value;
 
-            expenses.push({ name, cost, category });
+            if (taskTitle === '' || isNaN(numericCost) || numericCost <= 0) return;
 
-            expenseNameInput.value = '';
-            expenseCostInput.value = '';
+            itemLogs.push({ name: taskTitle, cost: numericCost, category: tagValue });
 
-            updateDashboardValues();
-            renderExpenseList();
+            inputNameField.value = '';
+            inputCostField.value = '';
+
+            recalculateDashboard();
+            drawUIList();
         };
 
-        window.deleteExpense = function(index) {
-            expenses.splice(index, 1);
-            updateDashboardValues();
-            renderExpenseList();
+        // Deletion handling function
+        window.removeLoggedItem = function(pos) {
+            itemLogs.splice(pos, 1);
+            recalculateDashboard();
+            drawUIList();
         };
+
+        // Initial launch configuration load
+        recalculateDashboard();
     </script>
 </body>
 </html>
