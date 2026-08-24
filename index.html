@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Expense Tracker</title>
+</head>
+<body>
+    <div class="container">
+        <h2>🎒 Student Expense Tracker</h2>
+        
+        <!-- Budget Display Boxes -->
+        <div class="budget-display">
+            <div>
+                <h4>Total Monthly Budget</h4>
+                <h1 id="budget-amount">$0.00</h1>
+            </div>
+            <div>
+                <h4>Total Expenses</h4>
+                <h1 id="expense-amount" style="color: red;">$0.00</h1>
+            </div>
+            <div>
+                <h4>Remaining Balance</h4>
+                <h1 id="balance-amount" style="color: green;">$0.00</h1>
+            </div>
+        </div>
+
+        <!-- Input Form -->
+        <div class="form-container">
+            <h3>Add New Expense</h3>
+            <form id="expense-form">
+                <input type="text" id="expense-name" placeholder="e.g., Books, Lunch, Rent" required>
+                <input type="number" id="expense-cost" placeholder="Amount ($)" required min="0.01" step="0.01">
+                <select id="expense-category">
+                    <option value="Food">Food & Drinks</option>
+                    <option value="Education">Books & College Supplies</option>
+                    <option value="Transport">Bus/Train/Fuel</option>
+                    <option value="Entertainment">Fun & Outings</option>
+                </select>
+                <button type="submit">Add Expense</button>
+            </form>
+        </div>
+
+        <!-- History List -->
+        <div class="history-container">
+            <h3>Expense Log History</h3>
+            <ul id="expense-list">
+                <!-- Expenses will appear here automatically via JavaScript -->
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
